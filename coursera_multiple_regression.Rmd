@@ -1,0 +1,109 @@
+---
+title: "coursera_multiple_regression"
+author: "Andrew Sinkevich"
+date: "10 01 2017"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+header-includes:
+- \usepackage{amssymb,amsmath}
+ 
+
+- \usepackage[utf8]{inputenc}
+
+- \usepackage{graphicx}
+- \setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+---
+
+```{r, echo=FALSE}
+library(readxl)
+library(rmarkdown)
+TestExer2_GPA <- read_excel("~/done/TestExer2-GPA-round2.xls")
+attach(TestExer2_GPA)
+
+```
+```{r}
+#devtools::install_github("rstudio/rmarkdown")
+```
+
+
+(a)
+
+i)
+```{r}
+lm.fit<-lm(FGPA~SATV)
+summary(lm.fit)
+```
+***Answer:*** the coefficient of SATV is 0.06, it's standart error and p-value are 0.02766 and 0.0229 respectively.
+
+
+ii)
+***confidence interval for beta***
+```{r}
+0.06309+ qnorm(0.95)*0.02766 
+0.06309- qnorm(0.95)*0.02766 
+```
+
+***Answer:*** 95% confidence interval for $\beta$ lies from 0.017 to 0.108   
+
+(b)
+i)
+```{r}
+lm.fit.full<-lm(FGPA~ SATM+SATV+FEM)
+summary(lm.fit.full)
+```
+
+ii)
+```{r}
+
+0.014+qnorm(0.95)*0.027
+0.014-qnorm(0.95)*0.027
+```
+
+***Answer:***in the second regression $FGPA = SATM+SATV+FEM$,  the 95% confidence interval of $\beta$ lies from -0.03041105 to 0.05841105
+
+
+(c)
+
+***Correlation matrix***
+```{r,echo=FALSE}
+library(dplyr)
+library(pander)
+TestExer2_GPA<-select(TestExer2_GPA,-Observation)
+correlationMatrix <-cor(TestExer2_GPA)
+pander::pandoc.table(correlationMatrix, caption="correlation matrix",split.cells = 1, split.tables=100,style = c("rmarkdown"), emphasize.strong.cells=which(correlationMatrix> 0.5, arr.ind = TRUE))
+
+```
+
+(d)
+
+```{r, echo=FALSE}
+Ftest.lm <- function(reg0,reg1)
+	{
+	N <- nrow(reg0$model)
+	n <- ncol(reg0$model)-1
+	k <- ncol(reg0$model) - ncol(reg1$model)
+
+	ssr0 <- sum(residuals(reg0)^2)
+	ssr1 <- sum(residuals(reg1)^2)	
+
+	F  <- (ssr1-ssr0)/ssr0*(N-n)/k
+	PF <- 1 - pf(F, k, N-n)
+
+	list("F-stat"=F, "P-value"=PF)
+}
+```
+
+```{r}
+Ftest.lm(lm.fit.full, lm.fit)
+
+```
+
+***Answer:***
+F-test is equal to 24.6058, so we have all reasons to accept H1 (we reject a H0 hypothesis of indentical influence of  $SATM+SATV+FEM$ and $SATM$ on the regression).
+
+#
+
+
+
